@@ -8,8 +8,7 @@ Create a blog application using Next.js for the frontend, MongoDB for data stora
 
 Additional Requirements:
 # Authentication:
-
-# Implement user authentication using NextAuth.js.
+Implement user authentication using NextAuth.js.
 Allow users to sign up, log in, and log out.
 Ensure that only authenticated users can create new blog posts.
 Display the author's name for each blog post based on the authenticated user.
