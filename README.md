@@ -1,5 +1,5 @@
 # be-assessment
-Interns will come up with a simple test for the week to understand Next.js better. 
+We would like to assess your understanding and ability during the first week with minimal supervision. This evaluation aims to gauge your level of comprehension and capability to work independently, providing insights into your potential for future projects.
 
 # Assessment Task: Next.js, MongoDB, and NextAuth.js Blog Application
 
