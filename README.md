@@ -1,7 +1,7 @@
 # be-assessment
 We would like to assess your understanding and ability during the first week with minimal supervision. This evaluation aims to gauge your level of comprehension and capability to work independently, providing insights into your potential for future projects.
 
-# Assessment Task: Next.js, MongoDB, and NextAuth.js Blog Application
+# Assessment Task: Next.js, MongoDB, and NextAuth.js Blog Application + PayLoadCMS
 
 # Goal:
 Create a blog application using Next.js for the frontend, MongoDB for data storage, and implement user authentication using NextAuth.js. Deploy the application on Vercel.
@@ -40,3 +40,6 @@ The intern should provide an updated GitHub repository containing the Next.js pr
 
 # Presentation
 The intern will be presenting to the tech team on their deliverables on how they set up the application.
+
+# Bonus
+Set up PayLoadCMS and pull some page content from the CMS and insert into the Next.js application. Explain the APIs setup during your presentation.
