@@ -5,21 +5,26 @@ import { useRouter } from 'next/router';
 
 const inter = Inter({ subsets: ['latin'] })
 
+/**
+ * Renders a sign up form for users to create a new account.
+ *
+ * The form includes fields for:
+ * - Username
+ * - Email address
+ * - Password
+ *
+ * When the form is submitted, a POST request is sent to the signup API endpoint
+ * with the provided username, email, and password. If the request is successful, 
+ * the user is redirected to the homepage. If an error occurs, it is logged to the console.
+ *
+ * If the user already has an account, a link to the sign in page is displayed.
+ */
+
 const SignUp: React.FC = () => {
   const router = useRouter();
-  // const [formData, setFormData] = useState({
-  //   username: '',
-  //   email: '',
-  //   password: '',
-  // });
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prevData) => ({ ...prevData, [name]: value }));
-  // };
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,6 +32,9 @@ const SignUp: React.FC = () => {
     try {
       fetch('/api/auth/signup', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',  // Set content type to JSON
+        },
         body: JSON.stringify({
           username: username,
           email: email,
@@ -43,8 +51,7 @@ const SignUp: React.FC = () => {
         console.log('err', err);
       });
 
-      // Redirect to sign in page
-      // router.push('/');
+      router.push('/auth/signin');
     } catch (error) {
       console.error('Error connecting to MongoDB:', error);
     }
@@ -103,7 +110,7 @@ const SignUp: React.FC = () => {
             Sign Up
           </button>
           <div className="mt-6">
-            <Link href="/">
+            <Link href="/auth/signin">
               <span className="text-blue-500 mt-4 cursor-pointer">Already have an account? Sign In</span>
             </Link>
           </div>
