@@ -1,96 +1,92 @@
-import Layout from '@/components/layout';
-import PostList from '@/components/post-list';
-import { useState, useEffect, useRef } from 'react';
+import BlogList from "@/components/blog-list";
+import Layout from "@/components/layout";
+import { CircularProgress } from "@mui/material";
+import { useState, useEffect } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
+interface HomeProps {
+  initialBlogs: Blog[];
+  initialPage: number; // Pass the initial page number from the server
 }
 
-interface MyPostsProps {
-  initialPosts: Post[];
-}
-
-const MyPosts: React.FC<MyPostsProps> = ({ initialPosts }) => {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+const Home: React.FC<HomeProps> = ({ initialBlogs, initialPage }) => {
+  const [blogs, setBlogs] = useState<Blog[]>(initialBlogs);
   const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage + 1); // Start from the next page
   const [hasMore, setHasMore] = useState(true);
-  const observerTarget = useRef<HTMLDivElement | null>(null);
 
-  const fetchMorePosts = async () => {
+  const fetchMoreBlogs = async () => {
     if (isLoading || !hasMore) return;
 
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/blogs?page=${page}`);
+      const response = await fetch(
+        `http://localhost:3000/api/blogs?page=${page}`
+      );
       const data = await response.json();
 
       if (data.length === 0) {
-        setHasMore(false); // No more posts to fetch
+        setHasMore(false); // No more blogs to fetch
       } else {
-        setPosts((prevPosts) => [...prevPosts, ...data]);
+        setBlogs((prevBlogs) => [...prevBlogs, ...data]);
         setPage((prevPage) => prevPage + 1);
       }
     } catch (error) {
-      console.error('Error fetching more posts:', error);
+      console.error("Error fetching more blogs:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          fetchMorePosts();
-        }
-      },
-      { threshold: 1.0 } // Trigger when the target is fully visible
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
-    return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
-      }
-    };
-  }, [page, hasMore]);
-
   return (
-    <Layout title="Popular Posts">
-      <PostList posts={posts} isLoading={isLoading} hasMore={hasMore} />
-      <div ref={observerTarget}></div> {/* Observer target */}
+    <Layout title="Popular Blogs">
+      <InfiniteScroll
+        dataLength={blogs.length}
+        next={fetchMoreBlogs}
+        hasMore={hasMore}
+        loader={
+          <div className="flex justify-center my-4">
+            <CircularProgress color="primary" /> {/* Circular spinner */}
+          </div>
+        }
+        endMessage={
+          <p className="text-center text-gray-500 my-4">
+            No more blogs to load.
+          </p>
+        }
+      >
+        <BlogList blogs={blogs} />
+      </InfiniteScroll>
     </Layout>
   );
 };
 
-export default MyPosts;
+export default Home;
 
 export async function getServerSideProps() {
   try {
     // Fetch the first page of data
-    const response = await fetch('http://localhost:3000/api/blogs?page=1');
+    const initialPage = 1; // Start with page 1
+    const response = await fetch(
+      `http://localhost:3000/api/blogs?page=${initialPage}`
+    );
     const data = await response.json();
 
-    const initialPosts = data.map((post: any) => ({
-      id: post._id,
-      title: post.title,
-      content: post.content,
+    const initialBlogs = data.map((blog: any) => ({
+      id: blog._id,
+      title: blog.title,
+      content: blog.content,
+      author: blog.author,
     }));
 
     return {
-      props: { initialPosts },
+      props: { initialBlogs, initialPage }, // Pass the initial page number
     };
   } catch (error) {
-    console.error('Error fetching posts:', error);
+    console.error("Error fetching blogs:", error);
     return {
-      props: { initialPosts: [] }, // Handle errors gracefully
+      props: { initialBlogs: [], initialPage: 1 }, // Handle errors gracefully
     };
   }
 }

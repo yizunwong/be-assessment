@@ -26,7 +26,7 @@ const TopNavBar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const router = useRouter();
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -43,19 +43,19 @@ const TopNavBar = () => {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: { target: any }) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     };
-
-    const handleKeyDown = (event: { key: string }) => {
+  
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setShowDropdown(false);
     };
-
+  
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
-
+  
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
@@ -80,18 +80,18 @@ const TopNavBar = () => {
           </Link>
           {session && (
             <Link
-              href="/my-posts"
+              href="/my-blogs"
               className="text-blue-600 hover:underline text-lg"
             >
-              My Posts
+              My Blogs
             </Link>
           )}
           {session && (
             <Link
-              href="/create-post"
+              href="/create-blog"
               className="text-blue-600 hover:underline text-lg"
             >
-              Create Post
+              Create Blog
             </Link>
           )}
 

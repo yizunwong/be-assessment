@@ -11,7 +11,9 @@ export async function createBlog(req: NextApiRequest, res: NextApiResponse) {
   const { title, content, author } = req.body;
 
   if (!title || !content || !author) {
-    return res.status(400).json({ error: "All fields (title, content, author) are required." });
+    return res
+      .status(400)
+      .json({ error: "All fields (title, content, author) are required." });
   }
 
   try {
@@ -36,7 +38,11 @@ export async function getBlogs(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export async function getBlogById(req: NextApiRequest, res: NextApiResponse, id: string) {
+export async function getBlogById(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  id: string
+) {
   try {
     const blog = await getBlogByIdService(id);
     if (blog) {
@@ -50,31 +56,46 @@ export async function getBlogById(req: NextApiRequest, res: NextApiResponse, id:
   }
 }
 
-export async function getBlogsByAuthorId(req: NextApiRequest, res: NextApiResponse) {
-    const { authorId } = req.query;
-    try {
-      const blogs = await getBlogsByAuthorIdService(authorId as string);
-  
-      if (blogs && blogs.length > 0) {
+export async function getBlogsByAuthorId(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  authorId: string
+) {
+  const page = parseInt(req.query.page as string, 10) || 1;
+
+  try {
+    // Fetch blogs using the service function
+    const blogs = await getBlogsByAuthorIdService(authorId as string, page);
+
+    // Check if blogs is an array and has data
+    if (Array.isArray(blogs)) {
+      if (blogs.length > 0) {
         return res.status(200).json(blogs);
       } else {
-        return res.status(404).json({ error: "No blogs found for the given author." });
+        return res.status(404).json(blogs);
       }
-    } catch (error) {
-      console.error("Error in getBlogsByAuthorId controller:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
+    } else {
+      // Handle unexpected response
+      return res
+        .status(500)
+        .json({ error: "Unexpected response from the server." });
     }
+  } catch (error) {
+    console.error("Error in getBlogsByAuthorId controller:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
+}
+export async function updateBlog(req: NextApiRequest, res: NextApiResponse, id: string) {
+  const { title, content } = req.body;
 
-export async function updateBlog(req: NextApiRequest, res: NextApiResponse) {
-  const { id, title, content, authorId } = req.body;
-
-  if (!id || !title || !content || !authorId) {
-    return res.status(400).json({ error: "All fields (id, title, content, authorId) are required." });
+  if ( !title || !content) {
+    return res.status(400).json({
+      error: "All fields (title, content) are required.",
+    });
   }
 
   try {
-    const result = await updateBlogService(id, title, content, authorId);
+    const result = await updateBlogService(id, title, content);
     if (result.matchedCount > 0) {
       return res.status(200).json({ success: true });
     } else {

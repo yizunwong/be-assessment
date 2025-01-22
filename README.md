@@ -10,7 +10,7 @@ Additional Requirements:
 # Authentication:
 Implement user authentication using NextAuth.js.
 Allow users to sign up, log in, and log out.
-Ensure that only authenticated users can create new blog posts.
+Ensure that only authenticated users can create new blog blogs.
 Display the author's name for each blog post based on the authenticated user.
 Proper integration of NextAuth.js for user authentication.
 Implementation of secure authentication flows (sign up, log in, log out).

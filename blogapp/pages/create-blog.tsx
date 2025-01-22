@@ -1,10 +1,10 @@
+import BlogForm from "@/components/blog-form";
 import Layout from "@/components/layout";
-import PostForm from "@/components/post-form";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-const CreatePost = () => {
+const CreateBlog = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -26,7 +26,7 @@ const CreatePost = () => {
     setIsSubmitting(true);
 
     try {
-      // Replace with your API endpoint for creating a post
+      // Replace with your API endpoint for creating a blog
       const response = await fetch("/api/blogs", {
         method: "POST",
         headers: {
@@ -36,20 +36,20 @@ const CreatePost = () => {
       });
 
       if (response.ok) {
-        router.push("/my-posts");
+        router.push("/my-blogs");
       } else {
-        console.error("Failed to create post");
+        console.error("Failed to create blog");
       }
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating blog:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Layout title="Create Post">
-      <PostForm
+    <Layout title="Create Blog">
+      <BlogForm
         title={title}
         content={content}
         isSubmitting={isSubmitting}
@@ -61,4 +61,4 @@ const CreatePost = () => {
   );
 };
 
-export default CreatePost;
+export default CreateBlog;

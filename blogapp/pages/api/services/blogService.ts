@@ -1,15 +1,19 @@
 import { connectToDatabase } from "@/utils/db";
 import { ObjectId } from "mongodb";
-import { User } from "../models/user";
+import { User } from "../../../models/user";
 
 /**
- * Creates a new blog post in the database.
- * @param {string} title The title of the post.
- * @param {string} content The content of the post.
- * @param {User} author The author of the post.
- * @returns {Promise<DocumentInsertionResult>} The ID of the newly created post.
+ * Creates a new blog blog in the database.
+ * @param {string} title The title of the blog.
+ * @param {string} content The content of the blog.
+ * @param {User} author The author of the blog.
+ * @returns {Promise<DocumentInsertionResult>} The ID of the newly created blog.
  */
-export async function createBlogService(title: string, content: string, author: User) {
+export async function createBlogService(
+  title: string,
+  content: string,
+  author: User
+) {
   const db = await connectToDatabase();
   const blogCollection = db.collection("blogs");
 
@@ -22,7 +26,6 @@ export async function createBlogService(title: string, content: string, author: 
   });
 }
 
-
 export async function getBlogsService(page = 1, limit = 12) {
   const db = await connectToDatabase();
   const blogCollection = db.collection("blogs");
@@ -31,16 +34,10 @@ export async function getBlogsService(page = 1, limit = 12) {
   const skip = (page - 1) * limit;
 
   // Fetch blogs with pagination
-  const blogs = await blogCollection
-    .find({})
-    .skip(skip)
-    .limit(limit)
-    .toArray();
+  const blogs = await blogCollection.find({}).skip(skip).limit(limit).toArray();
 
   return blogs;
 }
-
-
 
 export async function getBlogByIdService(id: string) {
   const db = await connectToDatabase();
@@ -50,28 +47,41 @@ export async function getBlogByIdService(id: string) {
 }
 
 /**
- * Retrieves all blog posts authored by the specified authorId.
+ * Retrieves all blog blogs authored by the specified authorId.
  * @param {string} authorId - The ID of the author whose blogs are to be retrieved.
  * @returns {Promise<Blog[]>} A promise that resolves to an array of blogs authored by the given authorId.
  */
 
-export async function getBlogsByAuthorIdService(authorId: string) {
-    const db = await connectToDatabase();
-    const blogCollection = db.collection("blogs");
-  
-    // Query the blogs collection for documents with the given authorId
-    return blogCollection.find({ "author._id": authorId }).toArray();
-  }
+export async function getBlogsByAuthorIdService(
+  authorId: string,
+  page = 1,
+  limit = 12
+) {
+  const db = await connectToDatabase();
+  const blogCollection = db.collection("blogs");
+  const skip = (page - 1) * limit;
+
+  // Query the blogs collection for documents with the given authorId
+  const blogs = await blogCollection
+    .find({ "author._id": authorId })
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+  return blogs;
+}
 
 /**
- * Updates an existing blog post with the specified id.
- * @param {string} id The ObjectId of the blog post to be updated.
- * @param {string} title The new title of the blog post.
- * @param {string} content The new content of the blog post.
- * @param {string} authorId The user ID of the author making the update.
+ * Updates an existing blog blog with the specified id.
+ * @param {string} id The ObjectId of the blog blog to be updated.
+ * @param {string} title The new title of the blog blog.
+ * @param {string} content The new content of the blog blog.
  * @returns {Promise<Blog>} The result of the update operation.
  */
-export async function updateBlogService(id: string, title: string, content: string, authorId: string) {
+export async function updateBlogService(
+  id: string,
+  title: string,
+  content: string,
+) {
   const db = await connectToDatabase();
   const blogCollection = db.collection("blogs");
 
@@ -81,7 +91,6 @@ export async function updateBlogService(id: string, title: string, content: stri
       $set: {
         title,
         content,
-        author: { user_id: authorId },
         updated_at: new Date(),
       },
     }
