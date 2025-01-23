@@ -94,9 +94,6 @@ export async function getServerSideProps(context: {
       author: blog.author, // Populated author object
     }));
 
-    console.log("API Response:", data);
-    console.log("Initial Blogs:", initialBlogs);
-
     return {
       props: { initialBlogs, initialPage },
     };

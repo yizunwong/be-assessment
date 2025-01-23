@@ -86,34 +86,26 @@ export async function getServerSideProps(context: any) {
   try {
     const session = await getSession(context);
 
-    if (!session) {
+    if (session) {
+      const author = session.user as User;
+
+      // Fetch the first page of blogs for the specific user
+      const initialPage = 1;
+      const response = await fetch(
+        `http://localhost:3000/api/blogs?where[author][equals]=${author._id}&page=${initialPage}&populate=author`
+      );
+      const data = await response.json();
+
+      const initialBlogs = data.docs.map((blog: any) => ({
+        id: blog.id,
+        title: blog.title,
+        content: blog.content,
+        author: blog.author,
+      }));
       return {
-        redirect: {
-          destination: "/auth/signin",
-          permanent: false,
-        },
+        props: { initialBlogs, initialPage },
       };
     }
-
-    const author = session.user as User;
-
-    // Fetch the first page of blogs for the specific user
-    const initialPage = 1;
-    const response = await fetch(
-      `http://localhost:3000/api/blogs?where[author][equals]=${author._id}&page=${initialPage}&populate=author`
-    );
-    const data = await response.json();
-
-    const initialBlogs = data.docs.map((blog: any) => ({
-      id: blog.id,
-      title: blog.title,
-      content: blog.content,
-      author: blog.author,
-    }));
-
-    return {
-      props: { initialBlogs, initialPage },
-    };
   } catch (error) {
     console.error("Error fetching blogs:", error);
     return {

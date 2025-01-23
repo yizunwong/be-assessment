@@ -17,11 +17,6 @@ const CreateBlog = () => {
     return <p className="text-center mt-20">Loading...</p>;
   }
 
-  if (!session) {
-    router.push("/auth/signin");
-    return null;
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
