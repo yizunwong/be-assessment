@@ -1,45 +1,67 @@
 # be-assessment
-We would like to assess your understanding and ability during the first week with minimal supervision. This evaluation aims to gauge your level of comprehension and capability to work independently, providing insights into your potential for future projects.
+# Authentication Setup:
+1. Install NextAuth.js
+Install the next-auth package using npm or yarn:
+npm install next-auth
+yarn add next-auth
 
-# Assessment Task: Next.js, MongoDB, and NextAuth.js Blog Application + PayLoadCMS
+2. Configure NextAuth.js
+Create a [...nextauth].ts file in the pages/api/auth directory.
+Configure the authentication providers (e.g., CredentialsProvider for email/password authentication).
+Set up environment variables for sensitive data like NEXTAUTH_SECRET and NEXTAUTH_URL.
+NEXTAUTH_SECRET=your-secret-key
+NEXTAUTH_URL=http://localhost:3000
 
-# Goal:
-Create a blog application using Next.js for the frontend, MongoDB for data storage, and implement user authentication using NextAuth.js. Deploy the application on Vercel.
+3. Customize Authentication Options
+Define custom callbacks for session and jwt to include additional user data in the session.
+Configure protected routes and redirects for authenticated and unauthenticated users.
 
-Additional Requirements:
-# Authentication:
-Implement user authentication using NextAuth.js.
-Allow users to sign up, log in, and log out.
-Ensure that only authenticated users can create new blog blogs.
-Display the author's name for each blog post based on the authenticated user.
-Proper integration of NextAuth.js for user authentication.
-Implementation of secure authentication flows (sign up, log in, log out).
-Restriction of blog post creation to authenticated users.
+# Authentication Flow:
+1. User Login
+Users submit their credentials (e.g., email and password) via the login form.
+The credentials are sent to the authorize function in the CredentialsProvider.
+If the credentials are valid, a session is created, and the user is redirected to the dashboard or home page.
+
+2. Session Management
+NextAuth.js manages user sessions using JSON Web Tokens (JWT) or database sessions.
+The session callback is used to include additional user data (e.g., user ID, username) in the session object.
+
+3. Protected Routes
+Middleware is used to protect routes like /dashboard, /create-blog, and /my-blog.
+Unauthenticated users are redirected to the sign-in page.
+
+4. User Logout
+Users can log out by calling the signOut function from next-auth/react.
+The session is invalidated, and the user is redirected to the sign-in page.
+
 
 # Frontend:
-Update the frontend to include user authentication features.
-Display a login/logout button on the homepage based on the user's authentication status.
-Only show the "Create a new post" button if the user is authenticated.
-User interface updates to reflect the authentication status (login/logout buttons, visibility of certain features).
-Clear indication of the blog post author based on the authenticated user.
+1. Sign-In Page
+A custom sign-in page (/auth/signin) was created to handle user login.
+The page includes a form for email and password input and displays error messages for invalid credentials.
 
-# Documentation:
-Include instructions on setting up and configuring NextAuth.js for authentication.
-Explain how the authentication flow works within the application.
-Document any changes made to the frontend due to authentication.
-Clear documentation of how to use the authentication features.
-Explanation of any changes made to the frontend due to authentication.
+2. Protected Routes
+Middleware was added to redirect unauthenticated users away from protected routes.
+Authenticated users can access protected routes like /dashboard, /create-blog, and /my-blog.
+
+3. User Session in Components
+The useSession hook from next-auth/react is used to access the user session in frontend components.
+Session data (e.g., username, email) is displayed in the UI.
+
+4. Logout Button
+A logout button was added to the navigation bar or user profile page.
+Clicking the button calls the signOut function to log the user out.
 
 # Deployment:
-Update the deployment process to handle authentication-related configurations.
-Ensure that the deployed application works seamlessly with authentication on Vercel.
-Evaluation Criteria (in addition to previous criteria):
+1. Environment Variables
+Ensure the following environment variables are set in the Vercel project:
+NEXTAUTH_SECRET=your-secret-key
+NEXTAUTH_URL=https://your-vercel-app.vercel.app
+2. API Endpoints
+Verify that all API endpoints (e.g., /api/users/login) are correctly configured and accessible in the production environment.
 
-# Submission:
-The intern should provide an updated GitHub repository containing the Next.js project, associated documentation (including updates for authentication), and share the deployed application link on Vercel.
+3. CORS Configuration
+If the API is hosted on a different domain, configure CORS to allow requests from the Vercel app.
 
-# Presentation
-The intern will be presenting to the tech team on their deliverables on how they set up the application.
-
-# Bonus
-Set up PayLoadCMS and pull some page content from the CMS and insert into the Next.js application. Explain the APIs setup during your presentation.
+4. Rebuild and Redeploy
+After making changes to the authentication setup, rebuild and redeploy the application on Vercel.
