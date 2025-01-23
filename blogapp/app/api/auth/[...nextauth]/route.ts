@@ -23,7 +23,7 @@ const authOptions: AuthOptions = {
        * Otherwise, it returns an object with the user's id, name, email, and token.
        */
       async authorize(credentials) {
-        const response = await fetch("/api/users/login", {
+        const response = await fetch(`${process.env.NEXTAUTH_URL}/api/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
