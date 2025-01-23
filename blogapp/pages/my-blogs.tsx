@@ -27,7 +27,7 @@ const MyBlogs: React.FC<MyBlogsProps> = ({ initialBlogs }) => {
       const author = session?.user as User;
 
       const response = await fetch(
-        `http://localhost:3000/api/blogs?where[author][equals]=${author._id}&page=${page}&populate=author`
+        `${process.env.NEXTAUTH_URL}/api/blogs?where[author][equals]=${author._id}&page=${page}&populate=author`
       );
       const data = await response.json();
 
@@ -92,7 +92,7 @@ export async function getServerSideProps(context: any) {
       // Fetch the first page of blogs for the specific user
       const initialPage = 1;
       const response = await fetch(
-        `http://localhost:3000/api/blogs?where[author][equals]=${author._id}&page=${initialPage}&populate=author`
+        `${process.env.NEXTAUTH_URL}/api/blogs?where[author][equals]=${author._id}&page=${initialPage}&populate=author`
       );
       const data = await response.json();
 

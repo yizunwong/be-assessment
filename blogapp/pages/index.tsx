@@ -23,7 +23,7 @@ const Home: React.FC<HomeProps> = ({ initialBlogs, initialPage }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/blogs?page=${initialPage}&populate=author`
+        `${process.env.NEXTAUTH_URL}/api/blogs?page=${initialPage}&populate=author`
       );
       const data = await response.json();
 
@@ -78,7 +78,7 @@ export async function getServerSideProps(context: {
     const initialPage = 1;
 
     const response = await fetch(
-      `http://localhost:3000/api/blogs?page=${initialPage}&populate=author`
+      `${process.env.NEXTAUTH_URL}/api/blogs?page=${initialPage}&populate=author`
     );
 
     if (!response.ok) {
