@@ -1,5 +1,6 @@
 import BlogList from "@/components/blog-list";
 import Layout from "@/components/layout";
+import { Blog } from "@/payload-types";
 import { CircularProgress } from "@mui/material";
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -22,14 +23,20 @@ const Home: React.FC<HomeProps> = ({ initialBlogs, initialPage }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/blogs?page=${page}`
+        `http://localhost:3000/api/blogs?page=${initialPage}&populate=author`
       );
       const data = await response.json();
 
-      if (data.length === 0) {
+      if (data.docs.length === 0) {
         setHasMore(false); // No more blogs to fetch
       } else {
-        setBlogs((prevBlogs) => [...prevBlogs, ...data]);
+        setBlogs((prevBlogs) => {
+          const existingIds = new Set(prevBlogs.map((blog) => blog.id)); // Track existing blog IDs
+          const newBlogs = data.docs.filter(
+            (blog: any) => !existingIds.has(blog.id)
+          ); // Filter out duplicates
+          return [...prevBlogs, ...newBlogs];
+        });
         setPage((prevPage) => prevPage + 1);
       }
     } catch (error) {
@@ -64,29 +71,39 @@ const Home: React.FC<HomeProps> = ({ initialBlogs, initialPage }) => {
 
 export default Home;
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context: {
+  req: { cookies: { token: any } };
+}) {
   try {
-    // Fetch the first page of data
-    const initialPage = 1; // Start with page 1
+    const initialPage = 1;
+
     const response = await fetch(
-      `http://localhost:3000/api/blogs?page=${initialPage}`
+      `http://localhost:3000/api/blogs?page=${initialPage}&populate=author`
     );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch blogs");
+    }
+
     const data = await response.json();
 
-    const initialBlogs = data.map((blog: any) => ({
-      id: blog._id,
+    const initialBlogs = data.docs.map((blog: any) => ({
+      id: blog.id,
       title: blog.title,
       content: blog.content,
-      author: blog.author,
+      author: blog.author, // Populated author object
     }));
 
+    console.log("API Response:", data);
+    console.log("Initial Blogs:", initialBlogs);
+
     return {
-      props: { initialBlogs, initialPage }, // Pass the initial page number
+      props: { initialBlogs, initialPage },
     };
   } catch (error) {
     console.error("Error fetching blogs:", error);
     return {
-      props: { initialBlogs: [], initialPage: 1 }, // Handle errors gracefully
+      props: { initialBlogs: [], initialPage: 1 },
     };
   }
 }

@@ -1,5 +1,6 @@
 import BlogForm from "@/components/blog-form";
 import Layout from "@/components/layout";
+import { User } from "@/models/user";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -10,8 +11,8 @@ const CreateBlog = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const user = session?.user as User;
 
-  // Redirect unauthenticated users to the sign-in page
   if (status === "loading") {
     return <p className="text-center mt-20">Loading...</p>;
   }
@@ -32,7 +33,7 @@ const CreateBlog = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, content, author: session.user }),
+        body: JSON.stringify({ title, content, author: user!._id }),
       });
 
       if (response.ok) {

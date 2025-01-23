@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 interface LayoutProps {
   children: ReactNode;
-  title?: string; // Optional title for the page
+  title?: string; 
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, title }) => {

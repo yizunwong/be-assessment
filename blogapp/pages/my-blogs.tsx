@@ -5,6 +5,7 @@ import Layout from "@/components/layout";
 import BlogList from "@/components/blog-list";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { CircularProgress } from "@mui/material";
+import { Blog } from "@/payload-types";
 
 interface MyBlogsProps {
   initialBlogs: Blog[]; // Renamed to initialBlogs for clarity
@@ -26,14 +27,20 @@ const MyBlogs: React.FC<MyBlogsProps> = ({ initialBlogs }) => {
       const author = session?.user as User;
 
       const response = await fetch(
-        `http://localhost:3000/api/blogs?authorId=${author!._id}&page=${page}`
+        `http://localhost:3000/api/blogs?where[author][equals]=${author._id}&page=${page}&populate=author`
       );
       const data = await response.json();
 
-      if (data.length === 0) {
+      if (data.docs.length === 0) {
         setHasMore(false); // No more blogs to fetch
       } else {
-        setBlogs((prevBlogs) => [...prevBlogs, ...data]);
+        setBlogs((prevBlogs) => {
+          const existingIds = new Set(prevBlogs.map((blog) => blog.id)); // Track existing blog IDs
+          const newBlogs = data.docs.filter(
+            (blog: any) => !existingIds.has(blog.id)
+          ); // Filter out duplicates
+          return [...prevBlogs, ...newBlogs];
+        });
         setPage((prevPage) => prevPage + 1);
       }
     } catch (error) {
@@ -91,22 +98,21 @@ export async function getServerSideProps(context: any) {
     const author = session.user as User;
 
     // Fetch the first page of blogs for the specific user
-    const initialPage = 1; 
+    const initialPage = 1;
     const response = await fetch(
-      `http://localhost:3000/api/blogs?authorId=${author!._id}&page=${initialPage}`
+      `http://localhost:3000/api/blogs?where[author][equals]=${author._id}&page=${initialPage}&populate=author`
     );
     const data = await response.json();
 
-    const initialBlogs = data.map((blog: any) => ({
-      id: blog._id,
+    const initialBlogs = data.docs.map((blog: any) => ({
+      id: blog.id,
       title: blog.title,
       content: blog.content,
       author: blog.author,
     }));
 
-
     return {
-      props: { initialBlogs , initialPage},
+      props: { initialBlogs, initialPage },
     };
   } catch (error) {
     console.error("Error fetching blogs:", error);

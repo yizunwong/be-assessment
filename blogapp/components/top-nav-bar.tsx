@@ -3,24 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import CircularProgress from "@mui/material/CircularProgress";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
-/**
- * The main navigation bar for the application.
- *
- * This component renders the logo, tagline, navigation links, and user dropdown.
- * If the user is not authenticated, a login button is rendered instead of the
- * user dropdown.
- *
- * The user dropdown contains a link to the user's profile and a button to log
- * out.
- * If the user is in the process of logging out, a loading spinner is displayed
- * instead of the log out button.
- * The user dropdown is toggleable via the button with the user's name.
- *
- * The component also handles the case where the user is not authenticated and
- * tries to access a protected route. In this case, the user is redirected to
- * the login page.
- */
 const TopNavBar = () => {
   const { data: session } = useSession();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -33,6 +17,11 @@ const TopNavBar = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     await signOut({ redirect: false });
     setTimeout(() => {
+      Cookies.remove("payload-token", {
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
       router.push("/auth/signin");
       setIsSigningOut(false);
     }, 500);

@@ -1,59 +1,52 @@
-import { Inter } from 'next/font/google'
-import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { Inter } from "next/font/google";
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import bcrypt from "bcryptjs";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 /**
- * Renders a sign up form for users to create a new account.
+ * Renders a sign-up form for users to create a new account.
  *
- * The form includes fields for:
- * - Username
- * - Email address
- * - Password
- *
- * When the form is submitted, a POST request is sent to the signup API endpoint
- * with the provided username, email, and password. If the request is successful, 
- * the user is redirected to the homepage. If an error occurs, it is logged to the console.
- *
- * If the user already has an account, a link to the sign in page is displayed.
+ * The form sends a POST request to Payload's `/api/users` endpoint with the
+ * provided username, email, and password. On successful registration, it redirects
+ * the user to the sign-in page. Errors are displayed in the console or UI.
  */
-
 const SignUp: React.FC = () => {
   const router = useRouter();
-  const [username, setUsername] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
     try {
-      fetch('/api/auth/signup', {
-        method: 'POST',
+      const response = await fetch("/api/users", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',  // Set content type to JSON
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: username,
-          email: email,
+          username,
+          email,
           password: password,
-        })
-      })
-      .then((res) => {
-        if(!res.ok) {
-          return Promise.reject();
-        }
-        console.log('res', res)
-      })
-      .catch((err) => {
-        console.log('err', err);
+        }),
       });
 
-      router.push('/auth/signin');
-    } catch (error) {
-      console.error('Error connecting to MongoDB:', error);
+      if (response.ok) {
+        console.log("User registered successfully");
+        router.push("/auth/signin");
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || "Failed to register. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error registering user:", err);
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -65,7 +58,10 @@ const SignUp: React.FC = () => {
         <h1 className="text-4xl mb-8">Sign Up</h1>
         <form className="w-full max-w-md" onSubmit={submitForm}>
           <div className="mb-4">
-            <label htmlFor="username" className="block text-gray-300 text-sm font-bold mb-2">
+            <label
+              htmlFor="username"
+              className="block text-gray-300 text-sm font-bold mb-2"
+            >
               Username
             </label>
             <input
@@ -75,10 +71,14 @@ const SignUp: React.FC = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter your username"
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-300 text-sm font-bold mb-2">
+            <label
+              htmlFor="email"
+              className="block text-gray-300 text-sm font-bold mb-2"
+            >
               Email
             </label>
             <input
@@ -88,10 +88,14 @@ const SignUp: React.FC = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter your email"
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-300 text-sm font-bold mb-2">
+            <label
+              htmlFor="password"
+              className="block text-gray-300 text-sm font-bold mb-2"
+            >
               Password
             </label>
             <input
@@ -101,8 +105,10 @@ const SignUp: React.FC = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter your password"
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
+          {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -111,13 +117,15 @@ const SignUp: React.FC = () => {
           </button>
           <div className="mt-6">
             <Link href="/auth/signin">
-              <span className="text-blue-500 mt-4 cursor-pointer">Already have an account? Sign In</span>
+              <span className="text-blue-500 mt-4 cursor-pointer">
+                Already have an account? Sign In
+              </span>
             </Link>
           </div>
         </form>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;
